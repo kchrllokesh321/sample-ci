@@ -30,18 +30,32 @@ jobs:
             ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:${{ github.sha }}
 
-      # Step 5: Stop old container (if running)
+      # Step 5: Stop old container (if exists)
       - name: Stop old container
         run: |
-           if (docker ps -q -f name=myapp-container) { docker stop myapp-container }
-           if (docker ps -aq -f name=myapp-container) { docker rm myapp-container }
+          if (docker ps -q -f name=myapp-container) {
+              docker stop myapp-container
+          }
+          if (docker ps -aq -f name=myapp-container) {
+              docker rm myapp-container
+          }
 
-      # Step 6: Run the container mapping ports
+      # Step 6: Run the new container (8080 in container → 8082 on host)
       - name: Run Docker container
         run: |
-          docker run -d -p 8082:8080 --name myapp-container \
+          docker run -d -p 8082:8080 --name myapp-container `
           ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:latest
 
       # Step 7: List running containers
       - name: List running containers
         run: docker ps -a
+
+      # Step 8: Test the container via curl
+      - name: Test running container
+        run: |
+          try {
+              Invoke-WebRequest http://localhost:8082 -UseBasicParsing
+          } catch {
+              Write-Host "Container is not responding!"
+              exit 1
+          }
