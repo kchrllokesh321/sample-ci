@@ -33,8 +33,8 @@ jobs:
       # Step 5: Stop old container (if running)
       - name: Stop old container
         run: |
-          docker stop myapp-container || true
-          docker rm myapp-container || true
+           if (docker ps -q -f name=myapp-container) { docker stop myapp-container }
+           if (docker ps -aq -f name=myapp-container) { docker rm myapp-container }
 
       # Step 6: Run the container mapping ports
       - name: Run Docker container
