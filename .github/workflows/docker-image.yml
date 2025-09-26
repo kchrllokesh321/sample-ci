@@ -43,7 +43,7 @@ jobs:
       # Step 6: Run the new container (8080 in container → 8082 on host)
       - name: Run Docker container
         run: |
-          docker run -d -p 8082:8080 --name myapp-container `
+          docker run -d -p 8082:8000 --name myapp-container `
           ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:latest
 
       # Step 7: List running containers
